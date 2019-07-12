@@ -36,6 +36,8 @@ def main():
     segment_parser.add_argument('-a', '--algorithm', type=str, default='viterbi',
                                 help='algorithm of segmentation e.g. perceptron')
     parse_parser = task_parser.add_parser(name='parse', help='dependency parsing')
+    parse_keyword = task_parser.add_parser(name='keyword', help='dependency Keyword')
+    parse_summary = task_parser.add_parser(name='summary', help='dependency summary')
     server_parser = task_parser.add_parser(name='serve', help='start http server',
                                            description='A http server for HanLP')
     server_parser.add_argument('--port', type=int, default=8765)
@@ -49,6 +51,8 @@ def main():
 
     add_args(segment_parser)
     add_args(parse_parser)
+    add_args(parse_keyword)
+    add_args(parse_summary)
 
     if '-v' in sys.argv or '--version' in sys.argv:
         print('jar  {}: {}'.format(HANLP_JAR_VERSION, HANLP_JAR_PATH))
@@ -98,6 +102,19 @@ def main():
         for line in sys.stdin:
             line = line.strip()
             print(HanLP.parseDependency(any2utf8(line)))
+    elif args.task == 'keyword':
+        for line in sys.stdin:
+            line = line.strip()
+            TextRankKeyword = JClass("com.hankcs.hanlp.summary.TextRankKeyword")
+            keyword_list = HanLP.extractKeyword(line, 3)
+            print(keyword_list)
+            #print(HanLP.parseDependency(any2utf8(line)))
+    elif args.task == 'summary':
+        for line in sys.stdin:
+            line = line.strip()
+            TextRankSentence = JClass("com.hankcs.hanlp.summary.TextRankSentence")
+            sentence_list = HanLP.extractSummary(line, 3)
+            print(sentence_list)
     elif args.task == 'serve':
         if PY == 3:
             from pyhanlp import server
